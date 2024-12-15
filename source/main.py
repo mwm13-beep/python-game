@@ -19,10 +19,11 @@ class Node:
         return self.f < other.f
 
 class Unit:
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, color, id = 0):
         self.x = x
         self.y = y
         self.color = color
+        self.id = id
 
     def move(self, dx, dy):
         self.x = dx
@@ -32,7 +33,10 @@ class Unit:
         pygame.draw.circle(screen, self.color, (self.x, self.y), radius)
 
     # A* path finding algorithm
-    def path_find(self, target, grid_size):
+    def path_find(self, target, grid_size, objects_in_grid):
+        # Check if the target position is occupied
+        if target in [(obj.x, obj.y) for obj in objects_in_grid]:
+            return None
         start_node = Node(self.x, self.y)
         target_node = Node(target[0], target[1])
         open_list = []
@@ -56,6 +60,11 @@ class Unit:
             for new_position in [(0, -grid_size), (0, grid_size), (-grid_size, 0), (grid_size, 0)]:
                 node_position = (current_node.x + new_position[0], current_node.y + new_position[1])
                 new_node = Node(node_position[0], node_position[1], current_node)
+                
+                # Skip nodes that are occupied by objects
+                if (new_node.x, new_node.y) in [(obj.x, obj.y) for obj in objects_in_grid]:
+                    continue
+                
                 children.append(new_node)
 
             # Loop through the children
@@ -95,7 +104,8 @@ def draw_screen(screen, grid_size):
         pygame.draw.line(screen, (255, 255, 255), (0, y), (screen.get_width(), y))
 
     # Draw the unit
-    unit.draw(screen, unit_radius)
+    for unit in turn_order:
+        unit.draw(screen, unit_radius)
 
     # Update the display
     pygame.display.flip()
@@ -111,9 +121,20 @@ pygame.display.set_caption("My Game")
 grid_size = 50
 grid_center = grid_size // 2
 unit_radius = (grid_size - 10) // 2
+objects_in_grid = []
 
-#define a unit
-unit = Unit(0 + grid_center, 0 + grid_center, (0, 0, 255))
+#define units
+blue_unit = Unit(0 + grid_center, 0 + grid_center, (0, 0, 255), 0)
+red_unit = Unit(100 + grid_center, 100 + grid_center, (255, 0, 0), 1)
+
+#turn tracking
+number_of_units = 2
+turn = 0
+turn_order = [blue_unit, red_unit]
+
+# add objects to the grid
+for unit in turn_order:
+    objects_in_grid.append(unit)
 
 # Main game loop
 while True:
@@ -123,11 +144,14 @@ while True:
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             target = (event.pos[0] // grid_size * grid_size + grid_center, event.pos[1] // grid_size * grid_size + grid_center)
-            path = unit.path_find(target, grid_size)
+            if target in [(obj.x, obj.y) for obj in objects_in_grid]:
+                continue
+            path = turn_order[turn].path_find(target, grid_size, objects_in_grid)
             if path:
                 for step in path:
-                    unit.move(step[0], step[1])
+                    turn_order[turn].move(step[0], step[1])
                     draw_screen(screen, grid_size)
-                    pygame.time.delay(100)
+                    pygame.time.delay(120)
+            turn = (turn + 1) % number_of_units
 
     draw_screen(screen, grid_size)

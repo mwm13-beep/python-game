@@ -1,5 +1,6 @@
 # Ignore the virtual environment folder
 venv/
+.vscode/
 
 # Ignore other common files and folders
 __pycache__/
