@@ -1,0 +1,6 @@
+
+2. Figure out a way to pull details out of the main to create a separate map/grid class.
+3. Add health, defense, attack and move attributes to unit class.
+4. Add combat logic.
+5. Add graphics from DQ3
+6. Add sound effects
