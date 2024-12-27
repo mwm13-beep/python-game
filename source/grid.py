@@ -1,5 +1,6 @@
 import pygame
 import heapq
+import math
 from node import Node
 
 class Grid:
@@ -7,7 +8,7 @@ class Grid:
         self.grid_size = grid_size
         self.grid_center = self.grid_size // 2
         self.unit_radius = (self.grid_size - 10) // 2
-        self.objects_in_grid = []
+        self.objects_in_grid = {}
 
     def draw_grid(self, screen):
         for x in range(0, screen.get_width(), self.grid_size):
@@ -16,17 +17,38 @@ class Grid:
             pygame.draw.line(screen, (255, 255, 255), (0, y), (screen.get_width(), y))
 
     # Convert grid coordinates to screen coordinates
-    def sqr_to_pos(self, x, y):
-        return (x * self.grid_size + self.grid_center, y * self.grid_size + self.grid_center)
+    def sqr_to_pos_center(self, *args):
+        if len(args) == 1:
+            coord = args[0]
+            return coord * self.grid_size + self.grid_center
+        elif len(args) == 2:
+            x, y = args
+            return (x * self.grid_size + self.grid_center, y * self.grid_size + self.grid_center)
+        
+    def sqr_to_pos_no_center(self, *args):
+        if len(args) == 1:
+            coord = args[0]
+            return coord * self.grid_size
+        elif len(args) == 2:
+            x, y = args
+            return (x * self.grid_size, y * self.grid_size)
+    
+    # Convert screen coordinates to grid coordinates
+    def pos_to_sqr(self, *args):
+        if len(args) == 1:
+            coord = args[0]
+            return math.ceil(coord / self.grid_size)
+        elif len(args) == 2:
+            x, y = args
+            return (math.ceil(x / self.grid_size), math.ceil(y / self.grid_size))
     
     def get_grid_center(self, x, y):
         return (x // self.grid_size * self.grid_size + self.grid_center, y // self.grid_size * self.grid_size + self.grid_center)
     
-       # A* path finding algorithm
+    # A* path finding algorithm
     def path_find(self, start, target):
-
         # Check if the target position is occupied
-        if target in [(obj.x, obj.y) for obj in self.objects_in_grid]:
+        if target in self.objects_in_grid:
             return None
         start_node = Node(start[0], start[1])
         target_node = Node(target[0], target[1])
@@ -53,7 +75,7 @@ class Grid:
                 new_node = Node(node_position[0], node_position[1], current_node)
                 
                 # Skip nodes that are occupied by objects
-                if (new_node.x, new_node.y) in [(obj.x, obj.y) for obj in self.objects_in_grid]:
+                if (new_node.x, new_node.y) in self.objects_in_grid:
                     continue
                 
                 children.append(new_node)
@@ -84,7 +106,7 @@ class Grid:
                     heapq.heappush(open_list, (child.f, child))
         return None
     
-    def movement_range_find(self, start, movement):
+    def find_range(self, start, range, atk_option):
         start_node = Node(start[0], start[1])
         open_list = []
         closed_list = []
@@ -94,8 +116,8 @@ class Grid:
             current_node = heapq.heappop(open_list)[1]
             closed_list.append(current_node)
 
-            # If we have reached a square beyond the specified movement range then do not process it
-            if current_node.g > movement * self.grid_size:
+            # If we have reached a square at or beyond the specified range then do not process it
+            if current_node.g >= range * self.grid_size:
                 continue
 
             # Get neighboring nodes' positions
@@ -105,8 +127,9 @@ class Grid:
                 new_node = Node(node_position[0], node_position[1], current_node)
                 
                 # Skip nodes that are occupied by objects
-                if (new_node.x, new_node.y) in [(obj.x, obj.y) for obj in self.objects_in_grid]:
-                    continue
+                if not atk_option:
+                    if (new_node.x, new_node.y) in self.objects_in_grid:
+                        continue
                 
                 children.append(new_node)
 
@@ -129,4 +152,7 @@ class Grid:
                     child.h = 0
                     child.f = child.g + child.h
                     heapq.heappush(open_list, (child.f, child))
+        
+        # By default, units cannot target their own square
+        closed_list.remove(start_node)
         return closed_list
