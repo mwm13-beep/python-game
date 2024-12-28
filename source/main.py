@@ -13,7 +13,6 @@ pygame.display.set_caption("My Game")
 range = None
 atk_option = False
 
-# Function for drawing the screen
 def draw_screen():
     # Fill the screen with black (RGB)
     screen.fill((0, 0, 0))
@@ -35,7 +34,7 @@ def draw_screen():
         for square in range:
             screen.blit(surface, (square.x - grid.grid_center, square.y - grid.grid_center))
 
-    # Draw the unit
+    # Draw the units
     for unit in turn_order:
         unit.draw(screen, grid.unit_radius)
 

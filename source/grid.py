@@ -7,7 +7,7 @@ class Grid:
     def __init__(self, grid_size = 50):
         self.grid_size = grid_size
         self.grid_center = self.grid_size // 2
-        self.unit_radius = (self.grid_size - 10) // 2
+        self.unit_radius = (self.grid_size - (grid_size / 5)) // 2
         self.objects_in_grid = {}
 
     def draw_grid(self, screen):

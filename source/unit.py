@@ -56,6 +56,17 @@ class Unit:
         # Draw the arrowhead
         pygame.draw.polygon(screen, (0, 0, 0), arrow_points)
 
+        # Draw the HP text below the unit
+        self.draw_hp(screen, radius)
+
+    def draw_hp(self, screen, radius):
+        font = pygame.font.Font(None, 16)
+        hp_text = f"{self.current_hp}/{self.max_hp}"
+        text_color = (255, 0, 0) if self.current_hp <= self.max_hp // 4 else (255, 255, 255)
+        text_surf = font.render(hp_text, True, text_color)
+        text_rect = text_surf.get_rect(center=(self.x, self.y + radius + 15))
+        screen.blit(text_surf, text_rect)
+
     def take_damage(self, attacker):
         self.current_hp -= attacker.atk - self.defense
         return self.current_hp <= 0
