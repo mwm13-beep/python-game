@@ -1,49 +1,72 @@
 import pygame
 import heapq
 import math
-from node import Node
+from source.node import Node
+from source.tiles.grass_tile import GrassTile
+from source.tiles.water_tile import WaterTile
+from source.tiles.wall_tile import WallTile
+from source.tiles.stone_tile import StoneTile
+from source.config import TILE_SIZE, TILE_CENTER
+
+TILE_TYPES = {
+    0: GrassTile,
+    1: WallTile,
+    2: WaterTile,
+    3: StoneTile,
+}
 
 class Grid:
-    def __init__(self, grid_size = 50):
-        self.grid_size = grid_size
-        self.grid_center = self.grid_size // 2
-        self.unit_radius = (self.grid_size - (grid_size / 5)) // 2
+    def __init__(self, tile_rows):
+        self.tiles = tile_rows
+        self.rows = len(tile_rows)
+        self.cols = len(tile_rows[0]) if self.rows > 0 else 0
         self.objects_in_grid = {}
 
-    def draw_grid(self, screen):
-        for x in range(0, screen.get_width(), self.grid_size):
-            pygame.draw.line(screen, (255, 255, 255), (x, 0), (x, screen.get_height()))
-        for y in range(0, screen.get_height(), self.grid_size):
-            pygame.draw.line(screen, (255, 255, 255), (0, y), (screen.get_width(), y))
+    @classmethod
+    def from_array(cls, array2d):
+        tile_rows = []
+        for y, row in enumerate(array2d):
+            tile_row = []
+            for x, tile_code in enumerate(row):
+                tile_cls = TILE_TYPES.get(tile_code, GrassTile)  # default fallback
+                tile = tile_cls(x, y)
+                tile_row.append(tile)
+            tile_rows.append(tile_row)
+        return cls(tile_rows)
+
+    def draw(self, surface):
+        for row in self.tiles:
+            for tile in row:
+                tile.draw(surface)
 
     # Convert grid coordinates to screen coordinates
     def sqr_to_pos_center(self, *args):
         if len(args) == 1:
             coord = args[0]
-            return coord * self.grid_size + self.grid_center
+            return coord * TILE_SIZE + TILE_CENTER
         elif len(args) == 2:
             x, y = args
-            return (x * self.grid_size + self.grid_center, y * self.grid_size + self.grid_center)
+            return (x * TILE_SIZE + TILE_CENTER, y * TILE_SIZE + TILE_CENTER)
         
     def sqr_to_pos_no_center(self, *args):
         if len(args) == 1:
             coord = args[0]
-            return coord * self.grid_size
+            return coord * TILE_SIZE
         elif len(args) == 2:
             x, y = args
-            return (x * self.grid_size, y * self.grid_size)
+            return (x * TILE_SIZE, y * TILE_SIZE)
     
     # Convert screen coordinates to grid coordinates
     def pos_to_sqr(self, *args):
         if len(args) == 1:
             coord = args[0]
-            return math.ceil(coord / self.grid_size)
+            return math.ceil(coord / TILE_SIZE)
         elif len(args) == 2:
             x, y = args
-            return (math.ceil(x / self.grid_size), math.ceil(y / self.grid_size))
+            return (math.ceil(x / TILE_SIZE), math.ceil(y / TILE_SIZE))
     
     def get_grid_center(self, x, y):
-        return (x // self.grid_size * self.grid_size + self.grid_center, y // self.grid_size * self.grid_size + self.grid_center)
+        return (x // TILE_SIZE * TILE_SIZE + TILE_CENTER, y // TILE_SIZE * TILE_SIZE + TILE_CENTER)
     
     # A* path finding algorithm
     def path_find(self, start, target):
@@ -70,7 +93,7 @@ class Grid:
 
             # Get neighboring nodes' positions
             children = []
-            for new_position in [(0, -self.grid_size), (0, self.grid_size), (-self.grid_size, 0), (self.grid_size, 0)]:
+            for new_position in [(0, -TILE_SIZE), (0, TILE_SIZE), (-TILE_SIZE, 0), (TILE_SIZE, 0)]:
                 node_position = (current_node.x + new_position[0], current_node.y + new_position[1])
                 new_node = Node(node_position[0], node_position[1], current_node)
                 
@@ -86,7 +109,7 @@ class Grid:
                     continue
 
                 # Calculate the g, h, and f values
-                child.g = current_node.g + self.grid_size
+                child.g = current_node.g + TILE_SIZE
                 child.h = ((child.x - target_node.x) ** 2) + ((child.y - target_node.y) ** 2)
                 child.f = child.g + child.h
 
@@ -117,12 +140,12 @@ class Grid:
             closed_list.append(current_node)
 
             # If we have reached a square at or beyond the specified range then do not process it
-            if current_node.g >= range * self.grid_size:
+            if current_node.g >= range * TILE_SIZE:
                 continue
 
             # Get neighboring nodes' positions
             children = []
-            for new_position in [(0, -self.grid_size), (0, self.grid_size), (-self.grid_size, 0), (self.grid_size, 0)]:
+            for new_position in [(0, -TILE_SIZE), (0, TILE_SIZE), (-TILE_SIZE, 0), (TILE_SIZE, 0)]:
                 node_position = (current_node.x + new_position[0], current_node.y + new_position[1])
                 new_node = Node(node_position[0], node_position[1], current_node)
                 
@@ -148,7 +171,7 @@ class Grid:
                 # If the child is not in the open list then calculate its g, h, and f values 
                 # and add it to the list
                 if not in_open_list:
-                    child.g = current_node.g + self.grid_size
+                    child.g = current_node.g + TILE_SIZE
                     child.h = 0
                     child.f = child.g + child.h
                     heapq.heappush(open_list, (child.f, child))

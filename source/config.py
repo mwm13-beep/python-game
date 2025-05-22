@@ -1,0 +1,3 @@
+# config.py
+TILE_SIZE = 50
+TILE_CENTER = TILE_SIZE/2
