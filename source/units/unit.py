@@ -28,7 +28,7 @@ class Unit(ABC):
         self.x = x
         self.y = y
         self.velocity = pygame.Vector2(0, 0)
-        self.speed = 60  # pixels per second or per frame depending on timing
+        self.speed = 200  # pixels per second or per frame depending on timing
         self.facing: Direction = Direction.UP
         self.command_queue: List[Command] = []
         self.curr_command: Command = None

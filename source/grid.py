@@ -3,12 +3,12 @@ from typing import List, Tuple
 import math
 
 import pygame
-from source.tiles.tile import Tile
+from source.tiles.base_tile import BaseTile
 from source.tiles.tile_types import TILE_TYPES
 from source.config import TILE_SIZE, TILE_CENTER
 
 class Grid:
-    def __init__(self, tile_rows: List[List[Tile]]) -> None:
+    def __init__(self, tile_rows: List[List[BaseTile]]) -> None:
         self.tiles = tile_rows
         self.rows = len(tile_rows)
         self.cols = len(tile_rows[0]) if self.rows > 0 else 0

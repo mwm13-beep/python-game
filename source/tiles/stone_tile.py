@@ -1,9 +1,9 @@
 # stone_tile.py
 
 import pygame
-from source.tiles.tile import Tile
+from source.tiles.base_tile import BaseTile
 
-class StoneTile(Tile):
+class StoneTile(BaseTile):
     def draw(self, surface):
         pygame.draw.rect(surface, (128, 128, 128), self.get_rect())
 

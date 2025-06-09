@@ -34,3 +34,15 @@ class GameState:
             StateFlag.CAMERA_LOCKED: False,
             StateFlag.INPUT_DISABLED: False,
         }
+
+    def can_accept_input(self) -> bool:
+        return not self.flags[StateFlag.MENU_OPEN] and not self.flags[StateFlag.INPUT_DISABLED]
+
+    def is_menu_open(self) -> bool:
+        return self.flags.get(StateFlag.MENU_OPEN, False)
+
+    def lock_camera(self):
+        self.flags[StateFlag.CAMERA_LOCKED] = True
+
+    def unlock_camera(self):
+        self.flags[StateFlag.CAMERA_LOCKED] = False

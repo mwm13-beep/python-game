@@ -1,9 +1,9 @@
 # water_tile.py
 
 import pygame
-from source.tiles.tile import Tile
+from source.tiles.base_tile import BaseTile
 
-class WaterTile(Tile):
+class WaterTile(BaseTile):
     def draw(self, surface):
         pygame.draw.rect(surface, (0, 0, 255), self.get_rect())
 

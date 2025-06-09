@@ -4,7 +4,7 @@ from typing import Tuple
 import pygame
 from source.config import TILE_SIZE
 
-class Tile(ABC):
+class BaseTile(ABC):
     def __init__(self, x_index: int, y_index: int) -> None:
         self.x_index = x_index
         self.y_index = y_index
