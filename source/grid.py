@@ -33,7 +33,7 @@ class Grid:
     # Convert grid coordinates to screen coordinates
     @classmethod
     def grid_coor_to_screen_coor(self, x: int, y: int) -> Tuple[float, float]:
-        return (x * TILE_SIZE, y * TILE_SIZE)
+        return (float(x * TILE_SIZE), float(y * TILE_SIZE))
 
     @classmethod
     def grid_coor_to_screen_coor_center(self, x: int, y: int) -> Tuple[float, float]:

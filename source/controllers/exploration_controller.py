@@ -12,7 +12,7 @@ class ExplorationController(Controller):
     def __init__(self) -> None:
         self.held_keys: Set[int] = set()
 
-    def handle_input(self, event: pygame.event.Event, game_state: GameState) -> None:
+    def _handle_input(self, event: pygame.event.Event, game_state: GameState) -> None:
         player = game_state.player
 
         if not game_state.flags[StateFlag.MENU_OPEN]:
